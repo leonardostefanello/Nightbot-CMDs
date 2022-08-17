@@ -130,97 +130,97 @@ if (enabled || streamerUserLevels.includes(userLevel))
         
         switch (args[0].toLowerCase())
         {
-            case "on":
-            case "enable":
+            case "ligar":
+            case "ativar":
                 if (streamerUserLevels.includes(userLevel))
                 {
                     if (enabled)
-                        `$PRINT$ ${userName} -> As funções da Fila já estão ativadas`;
+                        `$PRINT$ ${userName} -> As funções da fila já estão ativadas`;
                     else
-                        addUrl + encodeURIComponent("e|") + "&print=" + encodeURIComponent("As funções da Fila já estão ativadas!");
+                        addUrl + encodeURIComponent("e|") + "&print=" + encodeURIComponent("As funções da fila já estão ativadas!");
                 }
                 else
-                    `$PRINT$ ${userName} -> You must be the streamer to enable the queue`;
+                    `$PRINT$ ${userName} -> Você deve ser o Streamer para desabilitar a fila`;
                 break;
-            case "off":
-            case "disable":
+            case "desligar":
+            case "desativar":
                 if (streamerUserLevels.includes(userLevel))
                 {
                     if (!enabled)
-                        `$PRINT$ ${userName} -> As funções da Fila já estão desligadas`;
+                        `$PRINT$ ${userName} -> As funções da fila já estão desligadas`;
                     else
-                        addUrl + encodeURIComponent("d|") + "&print=" + encodeURIComponent("As funções da Fila já estão desligadas!");
+                        addUrl + encodeURIComponent("d|") + "&print=" + encodeURIComponent("As funções da fila já estão desligadas!");
                 }
                 else
-                    `$PRINT$ ${userName} -> You must be the streamer to disable the queue`;
+                    `$PRINT$ ${userName} -> Você deve ser o Streamer para desabilitar a fila`;
                 break;
-            case "start":
-            case "begin":
-            case "open":
+            case "iniciar":
+            case "começar":
+            case "abrir":
                 if (trustedUserLevels.includes(userLevel))
                 {
                     if (open)
-                        `$PRINT$ ${userName} -> The queue is already open`;
+                        `$PRINT$ ${userName} -> A fila já está aberta`;
                     else
-                        addUrl + encodeURIComponent("o|") + "&print=" + encodeURIComponent("The queue is now open!");
+                        addUrl + encodeURIComponent("o|") + "&print=" + encodeURIComponent("A fila já está aberta!");
                 }
                 else
-                    `$PRINT$ ${userName} -> You must be a trusted user to start the queue`;
+                    `$PRINT$ ${userName} -> Você precisa de permissão para iniciar a fila`;
                 break;
-            case "stop":
-            case "end":
-            case "close":
+            case "parar":
+            case "finalizar":
+            case "fechar":
                 if (trustedUserLevels.includes(userLevel))
                 {
                     if (!open)
-                        `$PRINT$ ${userName} -> The queue is already closed`;
+                        `$PRINT$ ${userName} -> A fila já está fechada`;
                     else
-                        addUrl + encodeURIComponent("c|") + "&print=" + encodeURIComponent("The queue is now closed!");
+                        addUrl + encodeURIComponent("c|") + "&print=" + encodeURIComponent("Agora a fila está fechada!");
                 }
                 else
-                    `$PRINT$ ${userName} -> You must be a trusted user to end the queue`;
+                    `$PRINT$ ${userName} -> Você precisa de permissão para encerrar a fila`;
                 break;
             case "view":
-            case "show":
-            case "list":
-            case "all":
+            case "mostrar":
+            case "lista":
+            case "todos":
                 if (trustedUserLevels.includes(userLevel))
-                    `$PRINT$ Current group: ${makeListString(group)} | Queue: ${makeListString(queue)}`.substr(0, 400);
+                    `$PRINT$ Grupo Atual: ${makeListString(group)} | Fila: ${makeListString(queue)}`.substr(0, 400);
                 else
-                    `$PRINT$ ${userName} -> You must be a trusted user to view the entire queue`;
+                    `$PRINT$ ${userName} -> Você precisa de permissão para visualizar toda a fila`;
                 break;
-            case "setsize":
-            case "changesize":
+            case "definirtamanho":
+            case "mudartamanho":
                 if (trustedUserLevels.includes(userLevel))
                 {
                     if (args.length == 2)
                     {
                         newSize = parseInt(args[1]);
                         if (isNaN(newSize) || newSize <= 0)
-                            `$PRINT$ ${userName} -> Enter a positive integer after "!queue ${args[0]}"`;
+                            `$PRINT$ ${userName} -> Insira um número inteiro positivo após "!queue ${args[0]}"`;
                         else
                             if (size == newSize)
-                                `$PRINT$ ${userName} -> The player group size is already ${size}`;
+                                `$PRINT$ ${userName} -> O tamanho do grupo de usuários já é ${size}`;
                             else
                                 addUrl + encodeURIComponent(`s,${newSize}|`) + "&print=" + encodeURIComponent(`The player group size was changed from ${size} to ${newSize}!`);
                     }
                     else
-                        `$PRINT$ ${userName} -> Enter a new player group size after "!queue ${args[0]}"`;
+                        `$PRINT$ ${userName} -> Digite um novo tamanho de grupo de usuários após "!queue ${args[0]}"`;
                 }
                 else
-                    `$PRINT$ ${userName} -> You must be a trusted user to set the player group size`;
+                    `$PRINT$ ${userName} -> Você precisa de permissão para definir o tamanho do grupo de jogadores`;
                 break;
-            case "new":
-            case "newgroup":
-            case "generate":
-            case "generategroup":
-            case "next":
-            case "nextgroup":
+            case "novo":
+            case "novogrupo":
+            case "criar":
+            case "criargrupo":
+            case "proximo":
+            case "proximogrupo":
                 if (trustedUserLevels.includes(userLevel))
                 {
                     availablePlayers = group.length + queue.length;
                     if (availablePlayers < size)
-                        `$PRINT$ ${userName} -> The number of players in the queue and current group (${availablePlayers}) isn't high enough to generate a new group of size ${size}`;
+                        `$PRINT$ ${userName} -> O número de usuários na fila e o grupo atual (${availablePlayers}) não é alto o suficiente para gerar um novo grupo de tamanho ${size}`;
                     else
                     {
                         newPlayers = queue.length > size ? size : queue.length;
@@ -232,24 +232,24 @@ if (enabled || streamerUserLevels.includes(userLevel))
                     }
                 }
                 else
-                    `$PRINT$ ${userName} -> You must be a trusted user to generate a new group from the queue`;
+                    `$PRINT$ ${userName} -> Você precisa de permissão para criar um novo grupo para a fila`;
                 break;
-            case "clear":
-            case "reset":
+            case "limpar":
+            case "reiniciar":
                 if (trustedUserLevels.includes(userLevel))
                 {
                     if (ledger == "There are no quotes added")
-                        `$PRINT$ ${userName} -> The queue and current group are already empty`;
+                        `$PRINT$ ${userName} -> A fila e o grupo atual já estão vazios`;
                     else
-                        clearUrl + "&print=" + encodeURIComponent("The queue and current group are now empty!");
+                        clearUrl + "&print=" + encodeURIComponent("A fila e o grupo atual agora estão vazios!");
                 }
                 else
-                    `$PRINT$ ${userName} -> You must be a trusted user to clear the queue and current group`;
+                    `$PRINT$ ${userName} -> Você precisa de permissão para limpar a fila ou o grupo atual`;
                 break;
-            case "add":
-            case "addviewer":
-            case "adduser":
-            case "addfollower":
+            case "adicionar":
+            case "adicionarmembro":
+            case "adicionarusuário":
+            case "adicionarseguidor":
                 if (trustedUserLevels.includes(userLevel))
                 {
                     if (args.length >= 2)
@@ -278,30 +278,30 @@ if (enabled || streamerUserLevels.includes(userLevel))
                         }
                         
                         if (currentQueuePosition != -1)
-                            `$PRINT$ ${userName} -> ${user} is already in the queue at position ${currentQueuePosition + 1}`;
+                            `$PRINT$ ${userName} -> ${user} já está na fila na posição ${currentQueuePosition + 1}`;
                         else if (foundInGroup)
-                            `$PRINT$ ${userName} -> ${user} is already in the current group`;
+                            `$PRINT$ ${userName} -> ${user} já está no grupo atual`;
                         else
-                            addUrl + encodeURIComponent(`j,${user}|`) + "&print=" + encodeURIComponent(`${user} was added to the queue at position ${queue.length + 1}`);
+                            addUrl + encodeURIComponent(`j,${user}|`) + "&print=" + encodeURIComponent(`${user} foi adicionado na fila na posição ${queue.length + 1}`);
                     }
                     else
-                        `$PRINT$ ${userName} -> Enter the viewer to add after "!queue ${args[0]}"`;
+                        `$PRINT$ ${userName} -> Digite o usuário para adicionar após "!queue ${args[0]}"`;
                 }
                 else
-                    `$PRINT$ ${userName} -> You must be a trusted user to add a viewer to the queue`;
+                    `$PRINT$ ${userName} -> Você precisa de permissão para adicionar um usuário na fila`;
                 break;
-            case "remove":
-            case "removeviewer":
-            case "removeuser":
-            case "removefollower":
-            case "delete":
-            case "deleteviewer":
-            case "deleteuser":
-            case "deletefollower":
+            case "remover":
+            case "removermembro":
+            case "removerusuário":
+            case "removerseguidor":
+            case "deletar":
+            case "deletarmembro":
+            case "deletarusuário":
+            case "deletarseguidor":
             case "del":
-            case "delviewer":
-            case "deluser":
-            case "delfollower":
+            case "delmembro":
+            case "delusuário":
+            case "delseguidor":
                 if (trustedUserLevels.includes(userLevel))
                 {
                     if (args.length >= 2)
@@ -330,28 +330,28 @@ if (enabled || streamerUserLevels.includes(userLevel))
                         }
                         
                         if (currentQueuePosition != -1)
-                            addUrl + encodeURIComponent(`r,${user}|`) + "&print=" + encodeURIComponent(`${user} was removed from the queue at position ${currentQueuePosition + 1}`);
+                            addUrl + encodeURIComponent(`r,${user}|`) + "&print=" + encodeURIComponent(`${user} foi removido da fila na posição ${currentQueuePosition + 1}`);
                         else if (foundInGroup)
-                            addUrl + encodeURIComponent(`r,${user}|`) + "&print=" + encodeURIComponent(`${user} was removed from the current group` + (queue.length == 0 ? "" : ` and was replaced by ${queue[0]}`));
+                            addUrl + encodeURIComponent(`r,${user}|`) + "&print=" + encodeURIComponent(`${user} foi removido do grupo atual` + (queue.length == 0 ? "" : ` e foi substituido por ${queue[0]}`));
                         else
-                            `$PRINT$ ${userName} -> ${user} is not in the queue or current group`;
+                            `$PRINT$ ${userName} -> ${user} não está na fila ou grupo atual`;
                     }
                     else
-                        `$PRINT$ ${userName} -> Enter the viewer to remove after "!queue ${args[0]}"`;
+                        `$PRINT$ ${userName} -> Digite um usuário para remover após "!queue ${args[0]}"`;
                 }
                 else
-                    `$PRINT$ ${userName} -> You must be a trusted user to remove a viewer from the queue or current group`;
+                    `$PRINT$ ${userName} -> Você precisa de permissão para remover um usuário da fila ou do grupo atual`;
                 break;
-            case "move":
-            case "moveviewer":
-            case "moveuser":
-            case "movefollower":
+            case "mover":
+            case "movermembro":
+            case "moverusuário":
+            case "moverseguidor":
                 if (trustedUserLevels.includes(userLevel))
                 {
                     if (queue.length == 0)
-                        `$PRINT$ ${userName} -> The queue is empty`;
+                        `$PRINT$ ${userName} -> A fila está vazia`;
                     else if (queue.length == 1)
-                        `$PRINT$ ${userName} -> Because there is only 1 viewer in the queue, it cannot be rearranged`;
+                        `$PRINT$ ${userName} -> Como há apenas 1 usuário na fila, ele não pode ser reorganizado`;
                     else
                     {
                         match = query.match(/^[^ ]+ +([^ ].*?) +([^ ]+)$/);
@@ -362,7 +362,7 @@ if (enabled || streamerUserLevels.includes(userLevel))
                             position = parseInt(match[2]);
                             
                             if (isNaN(position) || position < 1 || position > queue.length)
-                                `$PRINT$ ${userName} -> The position must be between 1 and ${queue.length}`;
+                                `$PRINT$ ${userName} -> A posição precisa ser entre 1 e ${queue.length}`;
                             else
                             {
                                 position -= 1; /* Remove the visual offset */
@@ -378,21 +378,21 @@ if (enabled || streamerUserLevels.includes(userLevel))
                                 }
                                 
                                 if (currentPosition == -1)
-                                    `$PRINT$ ${userName} -> ${user} is not in the queue`;
+                                    `$PRINT$ ${userName} -> ${user} não está na fila`;
                                 else if (position == currentPosition)
-                                    `$PRINT$ ${userName} -> ${user} is already in the queue at position ${currentPosition + 1}`;
+                                    `$PRINT$ ${userName} -> ${user} já está na fila na posição ${currentPosition + 1}`;
                                 else
-                                    addUrl + encodeURIComponent(`m,${user},${position}|`) + "&print=" + encodeURIComponent(`${user} was moved from position ${currentPosition + 1} to ${position + 1}`);
+                                    addUrl + encodeURIComponent(`m,${user},${position}|`) + "&print=" + encodeURIComponent(`${user} foi movido para a posição ${currentPosition + 1} to ${position + 1}`);
                             }
                         }
                         else
-                            `$PRINT$ ${userName} -> Enter the viewer to move and the new position after "!queue ${args[0]}"`;
+                            `$PRINT$ ${userName} -> Digite um usuário para poder mover para uma nova posição "!queue ${args[0]}"`;
                     }
                 }
                 else
-                    `$PRINT$ ${userName} -> You must be a trusted user to move a viewer in the queue`;
+                    `$PRINT$ ${userName} -> Você precisa de permissão para poder mover um usuário na fila`;
                 break;
-            case "join":
+            case "entrar":
                 if (open || trustedUserLevels.includes(userLevel))
                 {
                     user = userName.replace(/[|,]/g, "");
@@ -419,16 +419,16 @@ if (enabled || streamerUserLevels.includes(userLevel))
                     }
                     
                     if (currentQueuePosition != -1)
-                        `$PRINT$ ${userName} -> You are already in the queue at position ${currentQueuePosition + 1}`;
+                        `$PRINT$ ${userName} -> Você já está na fila na posição ${currentQueuePosition + 1}`;
                     else if (foundInGroup)
-                        `$PRINT$ ${userName} -> You are already in the current group`;
+                        `$PRINT$ ${userName} -> Você já está no grupo atual`;
                     else
-                        addUrl + encodeURIComponent(`j,${user}|`) + "&print=" + encodeURIComponent(`${userName} joined the queue at position ${queue.length + 1}`);
+                        addUrl + encodeURIComponent(`j,${user}|`) + "&print=" + encodeURIComponent(`${userName} entrou na fila na posição ${queue.length + 1}`);
                 }
                 else
-                    `$PRINT$ ${userName} -> The queue is closed`;
+                    `$PRINT$ ${userName} -> A fila está fechada`;
                 break;
-            case "leave":
+            case "sair":
                 if (open || trustedUserLevels.includes(userLevel))
                 {
                     user = userName.replace(/[|,]/g, "");
@@ -459,26 +459,26 @@ if (enabled || streamerUserLevels.includes(userLevel))
                     else if (foundInGroup)
                         addUrl + encodeURIComponent(`r,${user}|`) + "&print=" + encodeURIComponent(`${userName} left the current group` + (queue.length == 0 ? "" : ` and was replaced by ${queue[0]}`));
                     else
-                        `$PRINT$ ${userName} -> You are not in the queue or current group`;
+                        `$PRINT$ ${userName} -> Você não está na fila ou no grupo atual`;
                 }
                 else
-                    `$PRINT$ ${userName} -> The queue is closed`;
+                    `$PRINT$ ${userName} -> A fila está fechada`;
                 break;
             case "players":
-            case "currentgroup":
-            case "group":
-                `$PRINT$ Current group: ${makeListString(group)}`.substr(0, 400);
+            case "grupoatual":
+            case "grupo":
+                `$PRINT$ Grupo atual: ${makeListString(group)}`.substr(0, 400);
                 break;
-            case "size":
-            case "length":
-                `$PRINT$ Queue length: ${queue.length}`;
+            case "tamanho":
+            case "largura":
+                `$PRINT$ Largura da fila: ${queue.length}`;
                 break;
-            case "groupsize":
-            case "currentgroupsize":
-                `$PRINT$ Current group size: ${group.length}/${size}`;
+            case "tamanhogrupo":
+            case "tamanhogrupoatual":
+                `$PRINT$ Tamanho atual do grupo: ${group.length}/${size}`;
                 break;
-            case "position":
-            case "myposition":
+            case "posição":
+            case "minhaposição":
                 u = userName.toLowerCase();
                 
                 positionInQueue = -1;
@@ -492,7 +492,7 @@ if (enabled || streamerUserLevels.includes(userLevel))
                 }
                 
                 if (positionInQueue != -1)
-                    `$PRINT$ ${userName}'s queue position is ${positionInQueue + 1}`;
+                    `$PRINT$ A posição de ${userName} na fila é ${positionInQueue + 1}`;
                 else
                 {
                     foundInGroup = false;
@@ -506,9 +506,9 @@ if (enabled || streamerUserLevels.includes(userLevel))
                     }
                     
                     if (foundInGroup)
-                        `$PRINT$ ${userName} -> You are in the current group`;
+                        `$PRINT$ ${userName} -> Você está no grupo atual`;
                     else
-                        `$PRINT$ ${userName} -> You are not in the queue or current group`;
+                        `$PRINT$ ${userName} -> Você não está na fila ou no grupo atual`;
                 }
                 break;
             default:
@@ -517,7 +517,7 @@ if (enabled || streamerUserLevels.includes(userLevel))
         }
     }
     else
-        `$PRINT$ Current group: ${makeListString(group)} | !queue subcommands: join, leave, players, size, groupsize, and position`.substr(0, 400);
+        `$PRINT$ Grupo atua;: ${makeListString(group)} | !fila subcommands: entrar, sair, players, tamanho, tamanhogrupo, e posição`.substr(0, 400);
 }
 else
-    `$PRINT$ ${userName} -> As funções da Fila já estão desligadas`;
+    `$PRINT$ ${userName} -> As funções da fila estão desligadas`;
