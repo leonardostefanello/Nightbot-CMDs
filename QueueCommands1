@@ -1,0 +1,523 @@
+queue = [];
+enabled = true;
+open = true;
+group = [];
+size = 10;
+
+for (i = 0; i < ledger.length; i++)
+{
+    args = ledger[i].split(",");
+    
+    if (args.length == 0)
+        continue;
+    
+    switch (args[0])
+    {
+        case "e": /* Enable queue functions */
+            enabled = true;
+            break;
+        case "d": /* Disable queue functions */
+            enabled = false;
+            break;
+        case "o": /* Open queue to viewers */
+            open = true;
+            break;
+        case "c": /* Close queue to viewers */
+            open = false;
+            break;
+        case "s": /* Set group size to n */
+            if (args.length != 2)
+                continue;
+            
+            n = parseInt(args[1]);
+            if (isNaN(n) || n <= 0)
+                continue;
+            
+            size = n;
+            break;
+        case "g": /* Generate a new group from the queue */
+            if (group.length + queue.length < size)
+                continue;
+                
+            newPlayers = queue.length > size ? size : queue.length;
+            reusedPlayers = size - newPlayers;
+            
+            group = queue.splice(0, newPlayers).concat(group.splice(0, reusedPlayers));
+            break;
+        case "r": /* If the user is in the queue, remove them. If the user is in the group, remove them and add another from the queue */
+            if (args.length != 2)
+                continue;
+            
+            u = args[1].toLowerCase();
+            
+            /* Check if the user is in the queue, and if so, remove them */
+            for (j = 0; j < queue.length; j++)
+            {
+                if (u != queue[j].toLowerCase())
+                    continue;
+                
+                queue.splice(j, 1);
+                break;
+            }
+            
+            /* Check if the user is in the group, and if so, replace them with the first person in the queue (if they exist) */
+            for (j = 0; j < group.length; j++)
+            {
+                if (u != group[j].toLowerCase())
+                    continue;
+                
+                if (queue.length == 0)
+                    group.splice(j, 1);
+                else
+                    group.splice(j, 1, queue.splice(0, 1)[0]);
+                break;
+            }
+            
+            break;
+        case "j": /* u joins the queue */
+            if (args.length != 2)
+                continue;
+        
+            queue.push(args[1]);
+            break;
+        case "m": /* Move u to position p */
+            if (args.length != 3)
+                continue;
+            
+            u = args[1].toLowerCase();
+            p = parseInt(args[2]);
+            if (isNaN(p) || p < 0 || p >= queue.length)
+                continue;
+            
+            for (j = 0; j < queue.length; j++)
+            {
+                if (u != queue[j].toLowerCase())
+                    continue;
+                
+                queue.splice(p, 0, queue.splice(j, 1)[0]);
+                break;
+            }
+            break;
+    }
+}
+
+streamerUserLevels = ["owner"];
+trustedUserLevels = ["owner", "moderator", "regular"];
+
+if (enabled || streamerUserLevels.includes(userLevel))
+{
+    function makeListString(array)
+    {
+        string = "";
+        
+        for (k = 0; k < array.length; k++)
+        {
+            string += array[k];
+            if (array.length > 2 && k != array.length - 1)
+                string += ", ";
+            if (k == array.length - 2)
+                string += " and ";
+        }
+        
+        return string;
+    }
+    
+    args = query.split(" ");
+    if (query && args.length >= 1)
+    {
+        addUrl = `http://twitch.center/customapi/addquote?token=${privateToken}&data=`;
+        clearUrl = `http://twitch.center/customapi/delquote?token=${privateToken}&clear=1`;
+        
+        switch (args[0].toLowerCase())
+        {
+            case "on":
+            case "enable":
+                if (streamerUserLevels.includes(userLevel))
+                {
+                    if (enabled)
+                        `$PRINT$ ${userName} -> Queue functions are already enabled`;
+                    else
+                        addUrl + encodeURIComponent("e|") + "&print=" + encodeURIComponent("Queue functions are now enabled!");
+                }
+                else
+                    `$PRINT$ ${userName} -> You must be the streamer to enable the queue`;
+                break;
+            case "off":
+            case "disable":
+                if (streamerUserLevels.includes(userLevel))
+                {
+                    if (!enabled)
+                        `$PRINT$ ${userName} -> Queue functions are already disabled`;
+                    else
+                        addUrl + encodeURIComponent("d|") + "&print=" + encodeURIComponent("Queue functions are now disabled!");
+                }
+                else
+                    `$PRINT$ ${userName} -> You must be the streamer to disable the queue`;
+                break;
+            case "start":
+            case "begin":
+            case "open":
+                if (trustedUserLevels.includes(userLevel))
+                {
+                    if (open)
+                        `$PRINT$ ${userName} -> The queue is already open`;
+                    else
+                        addUrl + encodeURIComponent("o|") + "&print=" + encodeURIComponent("The queue is now open!");
+                }
+                else
+                    `$PRINT$ ${userName} -> You must be a trusted user to start the queue`;
+                break;
+            case "stop":
+            case "end":
+            case "close":
+                if (trustedUserLevels.includes(userLevel))
+                {
+                    if (!open)
+                        `$PRINT$ ${userName} -> The queue is already closed`;
+                    else
+                        addUrl + encodeURIComponent("c|") + "&print=" + encodeURIComponent("The queue is now closed!");
+                }
+                else
+                    `$PRINT$ ${userName} -> You must be a trusted user to end the queue`;
+                break;
+            case "view":
+            case "show":
+            case "list":
+            case "all":
+                if (trustedUserLevels.includes(userLevel))
+                    `$PRINT$ Current group: ${makeListString(group)} | Queue: ${makeListString(queue)}`.substr(0, 400);
+                else
+                    `$PRINT$ ${userName} -> You must be a trusted user to view the entire queue`;
+                break;
+            case "setsize":
+            case "changesize":
+                if (trustedUserLevels.includes(userLevel))
+                {
+                    if (args.length == 2)
+                    {
+                        newSize = parseInt(args[1]);
+                        if (isNaN(newSize) || newSize <= 0)
+                            `$PRINT$ ${userName} -> Enter a positive integer after "!queue ${args[0]}"`;
+                        else
+                            if (size == newSize)
+                                `$PRINT$ ${userName} -> The player group size is already ${size}`;
+                            else
+                                addUrl + encodeURIComponent(`s,${newSize}|`) + "&print=" + encodeURIComponent(`The player group size was changed from ${size} to ${newSize}!`);
+                    }
+                    else
+                        `$PRINT$ ${userName} -> Enter a new player group size after "!queue ${args[0]}"`;
+                }
+                else
+                    `$PRINT$ ${userName} -> You must be a trusted user to set the player group size`;
+                break;
+            case "new":
+            case "newgroup":
+            case "generate":
+            case "generategroup":
+            case "next":
+            case "nextgroup":
+                if (trustedUserLevels.includes(userLevel))
+                {
+                    availablePlayers = group.length + queue.length;
+                    if (availablePlayers < size)
+                        `$PRINT$ ${userName} -> The number of players in the queue and current group (${availablePlayers}) isn't high enough to generate a new group of size ${size}`;
+                    else
+                    {
+                        newPlayers = queue.length > size ? size : queue.length;
+                        reusedPlayers = size - newPlayers;
+                        
+                        group = queue.splice(0, newPlayers).concat(group.splice(0, reusedPlayers));
+                        
+                        (addUrl + encodeURIComponent("g|") + "&print=" + encodeURIComponent(`New group: ${makeListString(group)}`)).substr(0, 400);
+                    }
+                }
+                else
+                    `$PRINT$ ${userName} -> You must be a trusted user to generate a new group from the queue`;
+                break;
+            case "clear":
+            case "reset":
+                if (trustedUserLevels.includes(userLevel))
+                {
+                    if (ledger == "There are no quotes added")
+                        `$PRINT$ ${userName} -> The queue and current group are already empty`;
+                    else
+                        clearUrl + "&print=" + encodeURIComponent("The queue and current group are now empty!");
+                }
+                else
+                    `$PRINT$ ${userName} -> You must be a trusted user to clear the queue and current group`;
+                break;
+            case "add":
+            case "addviewer":
+            case "adduser":
+            case "addfollower":
+                if (trustedUserLevels.includes(userLevel))
+                {
+                    if (args.length >= 2)
+                    {
+                        user = query.substr(query.indexOf(" ") + 1).replace(/[|,]/g, "");
+                        u = user.toLowerCase();
+                        
+                        currentQueuePosition = -1;
+                        for (j = 0; j < queue.length; j++)
+                        {
+                            if (u != queue[j].toLowerCase())
+                                continue;
+                            
+                            currentQueuePosition = j;
+                            break;
+                        }
+                        
+                        foundInGroup = false;
+                        for (j = 0; j < group.length; j++)
+                        {
+                            if (u != group[j].toLowerCase())
+                                continue;
+                            
+                            foundInGroup = true;
+                            break;
+                        }
+                        
+                        if (currentQueuePosition != -1)
+                            `$PRINT$ ${userName} -> ${user} is already in the queue at position ${currentQueuePosition + 1}`;
+                        else if (foundInGroup)
+                            `$PRINT$ ${userName} -> ${user} is already in the current group`;
+                        else
+                            addUrl + encodeURIComponent(`j,${user}|`) + "&print=" + encodeURIComponent(`${user} was added to the queue at position ${queue.length + 1}`);
+                    }
+                    else
+                        `$PRINT$ ${userName} -> Enter the viewer to add after "!queue ${args[0]}"`;
+                }
+                else
+                    `$PRINT$ ${userName} -> You must be a trusted user to add a viewer to the queue`;
+                break;
+            case "remove":
+            case "removeviewer":
+            case "removeuser":
+            case "removefollower":
+            case "delete":
+            case "deleteviewer":
+            case "deleteuser":
+            case "deletefollower":
+            case "del":
+            case "delviewer":
+            case "deluser":
+            case "delfollower":
+                if (trustedUserLevels.includes(userLevel))
+                {
+                    if (args.length >= 2)
+                    {
+                        user = query.substr(query.indexOf(" ") + 1).replace(/[|,]/g, "");
+                        u = user.toLowerCase();
+                        
+                        currentQueuePosition = -1;
+                        for (j = 0; j < queue.length; j++)
+                        {
+                            if (u != queue[j].toLowerCase())
+                                continue;
+                            
+                            currentQueuePosition = j;
+                            break;
+                        }
+                        
+                        foundInGroup = false;
+                        for (j = 0; j < group.length; j++)
+                        {
+                            if (u != group[j].toLowerCase())
+                                continue;
+                            
+                            foundInGroup = true;
+                            break;
+                        }
+                        
+                        if (currentQueuePosition != -1)
+                            addUrl + encodeURIComponent(`r,${user}|`) + "&print=" + encodeURIComponent(`${user} was removed from the queue at position ${currentQueuePosition + 1}`);
+                        else if (foundInGroup)
+                            addUrl + encodeURIComponent(`r,${user}|`) + "&print=" + encodeURIComponent(`${user} was removed from the current group` + (queue.length == 0 ? "" : ` and was replaced by ${queue[0]}`));
+                        else
+                            `$PRINT$ ${userName} -> ${user} is not in the queue or current group`;
+                    }
+                    else
+                        `$PRINT$ ${userName} -> Enter the viewer to remove after "!queue ${args[0]}"`;
+                }
+                else
+                    `$PRINT$ ${userName} -> You must be a trusted user to remove a viewer from the queue or current group`;
+                break;
+            case "move":
+            case "moveviewer":
+            case "moveuser":
+            case "movefollower":
+                if (trustedUserLevels.includes(userLevel))
+                {
+                    if (queue.length == 0)
+                        `$PRINT$ ${userName} -> The queue is empty`;
+                    else if (queue.length == 1)
+                        `$PRINT$ ${userName} -> Because there is only 1 viewer in the queue, it cannot be rearranged`;
+                    else
+                    {
+                        match = query.match(/^[^ ]+ +([^ ].*?) +([^ ]+)$/);
+                        if (match)
+                        {
+                            user = match[1].replace(/[|,]/g, "");
+                            u = user.toLowerCase();
+                            position = parseInt(match[2]);
+                            
+                            if (isNaN(position) || position < 1 || position > queue.length)
+                                `$PRINT$ ${userName} -> The position must be between 1 and ${queue.length}`;
+                            else
+                            {
+                                position -= 1; /* Remove the visual offset */
+                                
+                                currentPosition = -1;
+                                for (j = 0; j < queue.length; j++)
+                                {
+                                    if (u != queue[j].toLowerCase())
+                                        continue;
+                                    
+                                    currentPosition = j;
+                                    break;
+                                }
+                                
+                                if (currentPosition == -1)
+                                    `$PRINT$ ${userName} -> ${user} is not in the queue`;
+                                else if (position == currentPosition)
+                                    `$PRINT$ ${userName} -> ${user} is already in the queue at position ${currentPosition + 1}`;
+                                else
+                                    addUrl + encodeURIComponent(`m,${user},${position}|`) + "&print=" + encodeURIComponent(`${user} was moved from position ${currentPosition + 1} to ${position + 1}`);
+                            }
+                        }
+                        else
+                            `$PRINT$ ${userName} -> Enter the viewer to move and the new position after "!queue ${args[0]}"`;
+                    }
+                }
+                else
+                    `$PRINT$ ${userName} -> You must be a trusted user to move a viewer in the queue`;
+                break;
+            case "join":
+                if (open || trustedUserLevels.includes(userLevel))
+                {
+                    user = userName.replace(/[|,]/g, "");
+                    u = user.toLowerCase();
+                        
+                    currentQueuePosition = -1;
+                    for (j = 0; j < queue.length; j++)
+                    {
+                        if (u != queue[j].toLowerCase())
+                            continue;
+                            
+                        currentQueuePosition = j;
+                        break;
+                    }
+                    
+                    foundInGroup = false;
+                    for (j = 0; j < group.length; j++)
+                    {
+                        if (u != group[j].toLowerCase())
+                            continue;
+                        
+                        foundInGroup = true;
+                        break;
+                    }
+                    
+                    if (currentQueuePosition != -1)
+                        `$PRINT$ ${userName} -> You are already in the queue at position ${currentQueuePosition + 1}`;
+                    else if (foundInGroup)
+                        `$PRINT$ ${userName} -> You are already in the current group`;
+                    else
+                        addUrl + encodeURIComponent(`j,${user}|`) + "&print=" + encodeURIComponent(`${userName} joined the queue at position ${queue.length + 1}`);
+                }
+                else
+                    `$PRINT$ ${userName} -> The queue is closed`;
+                break;
+            case "leave":
+                if (open || trustedUserLevels.includes(userLevel))
+                {
+                    user = userName.replace(/[|,]/g, "");
+                    u = user.toLowerCase();
+                    
+                    currentQueuePosition = -1;
+                    for (j = 0; j < queue.length; j++)
+                    {
+                        if (u != queue[j].toLowerCase())
+                            continue;
+                        
+                        currentQueuePosition = j;
+                        break;
+                    }
+                    
+                    foundInGroup = false;
+                    for (j = 0; j < group.length; j++)
+                    {
+                        if (u != group[j].toLowerCase())
+                            continue;
+                        
+                        foundInGroup = true;
+                        break;
+                    }
+                    
+                    if (currentQueuePosition != -1)
+                        addUrl + encodeURIComponent(`r,${user}|`) + "&print=" + encodeURIComponent(`${userName} left the queue at position ${currentQueuePosition + 1}`);
+                    else if (foundInGroup)
+                        addUrl + encodeURIComponent(`r,${user}|`) + "&print=" + encodeURIComponent(`${userName} left the current group` + (queue.length == 0 ? "" : ` and was replaced by ${queue[0]}`));
+                    else
+                        `$PRINT$ ${userName} -> You are not in the queue or current group`;
+                }
+                else
+                    `$PRINT$ ${userName} -> The queue is closed`;
+                break;
+            case "players":
+            case "currentgroup":
+            case "group":
+                `$PRINT$ Current group: ${makeListString(group)}`.substr(0, 400);
+                break;
+            case "size":
+            case "length":
+                `$PRINT$ Queue length: ${queue.length}`;
+                break;
+            case "groupsize":
+            case "currentgroupsize":
+                `$PRINT$ Current group size: ${group.length}/${size}`;
+                break;
+            case "position":
+            case "myposition":
+                u = userName.toLowerCase();
+                
+                positionInQueue = -1;
+                for (j = 0; j < queue.length; j++)
+                {
+                    if (u != queue[j].toLowerCase())
+                        continue;
+                    
+                    positionInQueue = j;
+                    break;
+                }
+                
+                if (positionInQueue != -1)
+                    `$PRINT$ ${userName}'s queue position is ${positionInQueue + 1}`;
+                else
+                {
+                    foundInGroup = false;
+                    for (j = 0; j < group.length; j++)
+                    {
+                        if (u != group[j].toLowerCase())
+                            continue;
+                        
+                        foundInGroup = true;
+                        break;
+                    }
+                    
+                    if (foundInGroup)
+                        `$PRINT$ ${userName} -> You are in the current group`;
+                    else
+                        `$PRINT$ ${userName} -> You are not in the queue or current group`;
+                }
+                break;
+            default:
+                `$PRINT$ ${userName} -> That is not a valid subcommand`;
+                break;
+        }
+    }
+    else
+        `$PRINT$ Current group: ${makeListString(group)} | !queue subcommands: join, leave, players, size, groupsize, and position`.substr(0, 400);
+}
+else
+    `$PRINT$ ${userName} -> Queue functions are disabled`;
