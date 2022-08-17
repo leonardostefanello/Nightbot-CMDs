@@ -135,7 +135,7 @@ if (enabled || streamerUserLevels.includes(userLevel))
                 if (streamerUserLevels.includes(userLevel))
                 {
                     if (enabled)
-                        `$PRINT$ ${userName} -> Queue functions are already enabled`;
+                        `$PRINT$ ${userName} -> As funções da Fila já estão ativadas`;
                     else
                         addUrl + encodeURIComponent("e|") + "&print=" + encodeURIComponent("Queue functions are now enabled!");
                 }
@@ -512,7 +512,7 @@ if (enabled || streamerUserLevels.includes(userLevel))
                 }
                 break;
             default:
-                `$PRINT$ ${userName} -> That is not a valid subcommand`;
+                `$PRINT$ ${userName} -> Esse não é um subcommand válido`;
                 break;
         }
     }
@@ -520,4 +520,4 @@ if (enabled || streamerUserLevels.includes(userLevel))
         `$PRINT$ Current group: ${makeListString(group)} | !queue subcommands: join, leave, players, size, groupsize, and position`.substr(0, 400);
 }
 else
-    `$PRINT$ ${userName} -> Queue functions are disabled`;
+    `$PRINT$ ${userName} -> As funções da Fila estão Desligadas`;
