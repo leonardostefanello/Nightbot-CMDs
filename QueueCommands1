@@ -137,7 +137,7 @@ if (enabled || streamerUserLevels.includes(userLevel))
                     if (enabled)
                         `$PRINT$ ${userName} -> As funções da Fila já estão ativadas`;
                     else
-                        addUrl + encodeURIComponent("e|") + "&print=" + encodeURIComponent("Queue functions are now enabled!");
+                        addUrl + encodeURIComponent("e|") + "&print=" + encodeURIComponent("As funções da Fila já estão ativadas!");
                 }
                 else
                     `$PRINT$ ${userName} -> You must be the streamer to enable the queue`;
@@ -147,9 +147,9 @@ if (enabled || streamerUserLevels.includes(userLevel))
                 if (streamerUserLevels.includes(userLevel))
                 {
                     if (!enabled)
-                        `$PRINT$ ${userName} -> Queue functions are already disabled`;
+                        `$PRINT$ ${userName} -> As funções da Fila já estão desligadas`;
                     else
-                        addUrl + encodeURIComponent("d|") + "&print=" + encodeURIComponent("Queue functions are now disabled!");
+                        addUrl + encodeURIComponent("d|") + "&print=" + encodeURIComponent("As funções da Fila já estão desligadas!");
                 }
                 else
                     `$PRINT$ ${userName} -> You must be the streamer to disable the queue`;
@@ -520,4 +520,4 @@ if (enabled || streamerUserLevels.includes(userLevel))
         `$PRINT$ Current group: ${makeListString(group)} | !queue subcommands: join, leave, players, size, groupsize, and position`.substr(0, 400);
 }
 else
-    `$PRINT$ ${userName} -> As funções da Fila estão Desligadas`;
+    `$PRINT$ ${userName} -> As funções da Fila já estão desligadas`;
