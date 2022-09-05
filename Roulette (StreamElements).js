@@ -1,0 +1,1 @@
+$(random.pick '$(sender) puxa o gatilho e.....Click!! ScaredyCat ' '$(sender) puxa o gatilho e.....Click ScaredyCat ' '$(sender) puxa o gatilho e.....Click ScaredyCat ' 'timeout $(sender.name) 60 BOOM, Você morreu!')
